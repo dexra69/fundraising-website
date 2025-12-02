@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Need Help to Pay My College Fee</title>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+    }
+    header {
+      background: #111827;
+      padding: 20px;
+      text-align: center;
+      color: white;
+      font-size: 26px;
+      font-weight: bold;
+    }
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    h2 { text-align: center; margin-bottom: 20px; }
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 15px;
+      margin: 12px 0;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .crypto-btn { background: #10b981; color: white; }
+    .wallet-box {
+      margin-top: 20px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: #fafafa;
+      display: none;
+    }
+    .wallet-box code { font-size: 16px; }
+    .qr-img { width: 150px; margin-top: 10px; }
+    .fund-container { text-align: center; margin: 20px 0; }
+    .progress-bar-bg { width: 80%; height: 30px; background: #ddd; border-radius: 15px; margin: 10px auto; }
+    .progress-bar { height: 100%; width: 0%; background: #10b981; border-radius: 15px; transition: width 0.5s; }
+    .donation-quote {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #111827;
+      background: #e0f7fa;
+      padding: 20px;
+      border-radius: 12px;
+    }
+  </style>
+</head>
+<body>
+  <header>Need Help to Pay My College Fee</header>
+
+  <div class="container">
+    <h2>Make a Donation</h2>
+
+    <!-- Crypto Button -->
+    <button class="btn crypto-btn" onclick="showWallet()">Donate with Crypto</button>
+
+    <!-- Live Fundraising Tracker -->
+    <div class="fund-container">
+      <h3>Fundraising Goal: $2000</h3>
+      <div class="progress-bar-bg">
+        <div id="progress-bar" class="progress-bar"></div>
+      </div>
+      <p>Raised: $<span id="raised">0</span></p>
+    </div>
+
+    <div id="walletBox" class="wallet-box">
+      <p><strong>ETH Wallet Address:</strong></p>
+      <code id="ethAddress">0xb00408716dbc9e552d4c5adbfe82d7b46a32d246</code>
+      <br />
+      <img class="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?data=0xb00408716dbc9e552d4c5adbfe82d7b46a32d246&size=150x150" alt="ETH QR Code">
+      <br /><br />
+      <button class="btn" onclick="copyETH()">Copy ETH Address</button>
+      <p id="copyMsgETH" style="color: green; display: none;">Copied!</p>
+
+      <p><strong>BNB Wallet Address:</strong></p>
+      <code id="bnbAddress">0xb00408716dbc9e552d4c5adbfe82d7b46a32d246</code>
+      <br />
+      <img class="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?data=0xb00408716dbc9e552d4c5adbfe82d7b46a32d246&size=150x150" alt="BNB QR Code">
+      <br /><br />
+      <button class="btn" onclick="copyBNB()">Copy BNB Address</button>
+      <p id="copyMsgBNB" style="color: green; display: none;">Copied!</p>
+
+      <p><strong>SOL Wallet Address:</strong></p>
+      <code id="solAddress">gXeXPBYVUbJorKPCgprSBx7Jbh6XkNYh8XPkAM1itLe</code>
+      <br />
+      <img class="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?data=gXeXPBYVUbJorKPCgprSBx7Jbh6XkNYh8XPkAM1itLe&size=150x150" alt="SOL QR Code">
+      <br /><br />
+      <button class="btn" onclick="copySOL()">Copy SOL Address</button>
+      <p id="copyMsgSOL" style="color: green; display: none;">Copied!</p>
+
+      <p><strong>BTC Wallet Address:</strong></p>
+      <code id="btcAddress">bc1pwphfdct9rfmk4378ht0m5tvhwr7898820jfuz6nsga8p3qvtz5nqdn5vcq</code>
+      <br />
+      <img class="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?data=bc1pwphfdct9rfmk4378ht0m5tvhwr7898820jfuz6nsga8p3qvtz5nqdn5vcq&size=150x150" alt="BTC QR Code">
+      <br /><br />
+      <button class="btn" onclick="copyBTC()">Copy BTC Address</button>
+      <p id="copyMsgBTC" style="color: green; display: none;">Copied!</p>
+    </div>
+
+    <div class="donation-quote">
+      "Your small act of kindness today can change a life forever. Be the reason someone achieves their dream!"
+    </div>
+  </div>
+
+  <script>
+    // Firebase Config
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    let raisedAmount = 0;
+    const goal = 2000;
+
+    // Listen to database for live updates
+    const raisedRef = db.ref('raisedAmount');
+    raisedRef.on('value', snapshot => {
+      raisedAmount = snapshot.val() || 0;
+      document.getElementById('raised').innerText = raisedAmount;
+      const percent = (raisedAmount / goal) * 100;
+      document.getElementById('progress-bar').style.width = percent + '%';
+    });
+
+    function showWallet() {
+      document.getElementById('walletBox').style.display = 'block';
+    }
+
+    function addDonation(amount) {
+      raisedAmount += amount;
+      raisedRef.set(raisedAmount);
+    }
+
+    function copyETH() { navigator.clipboard.writeText(document.getElementById('ethAddress').innerText); addDonation(50); showCopy('copyMsgETH'); }
+    function copyBNB() { navigator.clipboard.writeText(document.getElementById('bnbAddress').innerText); addDonation(50); showCopy('copyMsgBNB'); }
+    function copySOL() { navigator.clipboard.writeText(document.getElementById('solAddress').innerText); addDonation(50); showCopy('copyMsgSOL'); }
+    function copyBTC() { navigator.clipboard.writeText(document.getElementById('btcAddress').innerText); addDonation(50); showCopy('copyMsgBTC'); }
+
+    function showCopy(id) {
+      document.getElementById(id).style.display = 'block';
+      setTimeout(() => { document.getElementById(id).style.display = 'none'; }, 2000);
+    }
+  </script>
+</body>
+</html>
